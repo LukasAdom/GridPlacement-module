@@ -20,6 +20,7 @@ local maxHeigth: int64 = 90
 local lerpAmount: float = 0.75
 
 local gridTexture: texture = ""
+
 -- parameter end
 
 
@@ -28,6 +29,7 @@ objectPlacement.__index = objectPlacement
 
 local plr = game:GetService("Players")
 local runService = game:GetService("RunService")
+local contextActService = game:GetService("ContextActionService")
 
 local localPlayer = plr.LocalPlayer
 local playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
@@ -49,18 +51,27 @@ local posX: vec1
 local posY: vec1
 local posZ: vec1
 
-
--- mutable variables --
 local speed: int64 = 1
+local inmutRotation: int64 = 0
 
-local function snapToPosition(x: int64): ()
+
+--2024/7/14 added rotation to a given object--
+local function rotateObject<T>(actionName: string, inputState: T): ()
+	if inputState == Enum.UserInputState.Begin then
+		inmutRotation += rotation
+	end
+end
+--2024/7/14--
+
+
+local function snapToPosition(x: int64): (int64)
 	return math.floor((x/_GRID_SIZE) + 0.5) * _GRID_SIZE
 end
 
 local function caclModelPosition()
 	if gridMovement then
 			posX = snapToPosition(mouse.Hit.X)
-			posY = 2
+			posY = 2 --TODO: Make the Y coordinate dynamically change depending on the objs assigned Y offset value
 			posZ = snapToPosition(mouse.Hit.Z)
 		else
 			posX = mouse.Hit.X
@@ -69,11 +80,16 @@ local function caclModelPosition()
 	end
 end
 
+local function bindInput()
+	contextActService:BindAction("Rotate", rotateObject, false, _ROTATIONAL_KEY)
+end
+
+
 local function translateObjXYZ()
 	if _placedObjs and _obj.Parent == _placedObjs then
 		caclModelPosition()
 
-		_obj:PivotTo(_obj.PrimaryPart.CFrame:Lerp(CFrame.new(posX, posY, posZ), speed))
+		_obj:PivotTo(_obj.PrimaryPart.CFrame:Lerp(CFrame.new(posX, posY, posZ) * CFrame.fromEulerAnglesXYZ(0, math.rad(inmutRotation), 0), speed))
 	end
 end
 
@@ -121,7 +137,8 @@ function objectPlacement:active<T, K>(id: T, placedObjs: Folder, plot: K, stacka
 	_placedObjs = placedObjs
 	_plot = plot::any
 	_stackable = stackable
-	
+	inmutRotation = 0
+
 	
 	if not approve() then
 		return print("Placement can't be approved")
@@ -142,7 +159,7 @@ function objectPlacement:active<T, K>(id: T, placedObjs: Folder, plot: K, stacka
 	_obj.Parent = _placedObjs
 
 	task.wait()
-
+	bindInput()
 	speed = defaultSpeed
 end
 
