@@ -33,7 +33,7 @@ local localPlayer = plr.LocalPlayer
 local playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local mouse = localPlayer:GetMouse()
 
--- DO NOT CHANGE // immutable variables --
+-- DO NOT CHANGE THE VALUES --
 
 local _GRID_SIZE: int64
 local _OBJ_PATH: path
