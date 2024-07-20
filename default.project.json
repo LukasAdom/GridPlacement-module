@@ -7,6 +7,11 @@
       "$ignoreUnknownInstances": true,
       "$path": "src/ReplicatedStorage"
     },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/ServerScriptService"
+    },
     "StarterGui": {
       "$className": "StarterGui",
       "$ignoreUnknownInstances": true,
